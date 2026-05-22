@@ -2,9 +2,8 @@ import uuid
 from datetime import datetime
 from sqlalchemy import (
     Column, String, Text, Integer, BigInteger, Float, Numeric,
-    DateTime, Boolean, ForeignKey, JSON, func
+    DateTime, ForeignKey, JSON, func
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -16,12 +15,12 @@ def uuid4():
 class Post(Base):
     __tablename__ = "posts"
 
-    post_id = Column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    post_id = Column(String(36), primary_key=True, default=uuid4)
     platform = Column(String(50), nullable=False)
     ticker = Column(String(20), index=True, nullable=False)
     author_id = Column(String(100))
     author_type = Column(String(50), default="retail")
-    post_time = Column(DateTime(timezone=True), index=True, nullable=False)
+    post_time = Column(DateTime, index=True, nullable=False)
     content = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
     replies = Column(Integer, default=0)
@@ -53,14 +52,14 @@ class NLPResult(Base):
     __tablename__ = "nlp_results"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.post_id"), index=True)
+    post_id = Column(String(36), ForeignKey("posts.post_id"), index=True)
     stance = Column(String(20))
     hype_score = Column(Float)
     post_type = Column(String(50))
     action_cue = Column(String(50))
     confidence = Column(Float)
     model_version = Column(String(50), default="finbert-v1")
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
     post = relationship("Post", back_populates="nlp_result")
 
@@ -70,8 +69,8 @@ class AggregatedSignal(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     ticker = Column(String(20), index=True, nullable=False)
-    window_start = Column(DateTime(timezone=True))
-    window_end = Column(DateTime(timezone=True))
+    window_start = Column(DateTime)
+    window_end = Column(DateTime)
     post_count = Column(Integer, default=0)
     unique_authors = Column(Integer, default=0)
     bullish_ratio = Column(Float, default=0.0)
@@ -89,9 +88,9 @@ class AggregatedSignal(Base):
 class Alert(Base):
     __tablename__ = "alerts"
 
-    alert_id = Column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    alert_id = Column(String(36), primary_key=True, default=uuid4)
     ticker = Column(String(20), index=True, nullable=False)
-    alert_time = Column(DateTime(timezone=True), server_default=func.now())
+    alert_time = Column(DateTime, server_default=func.now())
     risk_level = Column(String(30))
     rule_score = Column(Float)
     ml_score = Column(Float)
@@ -104,14 +103,14 @@ class Alert(Base):
 class ReplayEvent(Base):
     __tablename__ = "replay_events"
 
-    event_id = Column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    event_id = Column(String(36), primary_key=True, default=uuid4)
     ticker = Column(String(20), index=True, nullable=False)
-    event_time = Column(DateTime(timezone=True))
+    event_time = Column(DateTime)
     event_type = Column(String(50))
     title = Column(String(300))
     description = Column(Text)
     source_type = Column(String(50))
-    related_post_id = Column(UUID(as_uuid=False), ForeignKey("posts.post_id"), nullable=True)
+    related_post_id = Column(String(36), ForeignKey("posts.post_id"), nullable=True)
 
     related_post = relationship("Post", back_populates="replay_events")
 
@@ -119,21 +118,21 @@ class ReplayEvent(Base):
 class ScenarioRun(Base):
     __tablename__ = "scenario_runs"
 
-    run_id = Column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    run_id = Column(String(36), primary_key=True, default=uuid4)
     user_id = Column(String(100))
     ticker = Column(String(20))
     input_params_json = Column(JSON)
     output_score = Column(Float)
     output_label = Column(String(50))
     output_explanation = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
 
 class Watchlist(Base):
     __tablename__ = "watchlists"
 
-    watchlist_id = Column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    watchlist_id = Column(String(36), primary_key=True, default=uuid4)
     user_id = Column(String(100))
     ticker = Column(String(20))
     threshold_config_json = Column(JSON)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime, server_default=func.now())

@@ -37,7 +37,7 @@ export default function TimelineChart({
         style={{ height }}
         className="flex items-center justify-center text-slate-500 text-sm"
       >
-        No data available
+        目前沒有可顯示的資料
       </div>
     )
   }
@@ -59,13 +59,13 @@ export default function TimelineChart({
   }))
 
   const series: echarts.SeriesOption[] = []
-  const yAxes: echarts.YAxisOption[] = []
+  const yAxes: any[] = []
   let yIndex = 0
 
   if (showPrice) {
     yAxes.push({
       type: 'value',
-      name: 'Price ($)',
+      name: '股價 ($)',
       position: 'left',
       nameTextStyle: { color: '#64748b', fontSize: 11 },
       axisLabel: { color: '#64748b', fontSize: 10, formatter: '${value}' },
@@ -73,20 +73,20 @@ export default function TimelineChart({
       axisLine: { lineStyle: { color: '#334155' } },
     })
     series.push({
-      name: 'Price',
+      name: '股價',
       type: 'line',
       yAxisIndex: yIndex,
       data: data.map(d => d.price ?? null),
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#22c55e', width: 2.5 },
+      lineStyle: { color: '#14b8a6', width: 2.5 },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: '#22c55e40' },
-            { offset: 1, color: '#22c55e05' },
+            { offset: 0, color: '#14b8a640' },
+            { offset: 1, color: '#14b8a605' },
           ],
         },
       },
@@ -102,7 +102,7 @@ export default function TimelineChart({
   if (showVolume) {
     yAxes.push({
       type: 'value',
-      name: 'Volume',
+      name: '成交量',
       position: showPrice ? 'right' : 'left',
       nameTextStyle: { color: '#64748b', fontSize: 11 },
       axisLabel: {
@@ -113,7 +113,7 @@ export default function TimelineChart({
       axisLine: { lineStyle: { color: '#334155' } },
     })
     series.push({
-      name: 'Volume',
+      name: '成交量',
       type: 'bar',
       yAxisIndex: yIndex,
       data: data.map(d => d.volume ?? null),
@@ -126,7 +126,7 @@ export default function TimelineChart({
   if (showSocial) {
     yAxes.push({
       type: 'value',
-      name: 'Social Volume',
+      name: '社群聲量',
       position: showPrice && showVolume ? 'right' : (showPrice || showVolume ? 'right' : 'left'),
       offset: showPrice && showVolume ? 70 : 0,
       nameTextStyle: { color: '#64748b', fontSize: 11 },
@@ -135,32 +135,32 @@ export default function TimelineChart({
       axisLine: { lineStyle: { color: '#334155' } },
     })
     series.push({
-      name: 'Social Posts',
+      name: '社群貼文',
       type: 'line',
       yAxisIndex: yIndex,
       data: data.map(d => d.postCount ?? null),
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#a855f7', width: 2 },
+      lineStyle: { color: '#3b82f6', width: 2 },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: '#a855f740' },
-            { offset: 1, color: '#a855f705' },
+            { offset: 0, color: '#3b82f640' },
+            { offset: 1, color: '#3b82f605' },
           ],
         },
       },
     } as echarts.SeriesOption)
     series.push({
-      name: 'Hype Score',
+      name: '炒作熱度',
       type: 'line',
       yAxisIndex: yIndex,
       data: data.map(d => d.hypeScore != null ? d.hypeScore * 1000 : null),
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#f97316', width: 1.5, type: 'dashed' },
+      lineStyle: { color: '#d97706', width: 1.5, type: 'dashed' },
     } as echarts.SeriesOption)
     yIndex++
   }
@@ -168,7 +168,7 @@ export default function TimelineChart({
   if (showRisk) {
     yAxes.push({
       type: 'value',
-      name: 'Risk Score',
+      name: '風險分數',
       min: 0,
       max: 10,
       position: 'right',
@@ -178,20 +178,20 @@ export default function TimelineChart({
       axisLine: { lineStyle: { color: '#334155' } },
     })
     series.push({
-      name: 'Risk Score',
+      name: '風險分數',
       type: 'line',
       yAxisIndex: yIndex,
       data: data.map(d => d.riskScore ?? null),
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#ef4444', width: 2 },
+      lineStyle: { color: '#dc2626', width: 2 },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: '#ef444440' },
-            { offset: 1, color: '#ef444405' },
+            { offset: 0, color: '#dc262640' },
+            { offset: 1, color: '#dc262605' },
           ],
         },
       },
@@ -228,7 +228,7 @@ export default function TimelineChart({
         borderColor: '#334155',
         backgroundColor: '#0f172a',
         dataBackground: { lineStyle: { color: '#475569' }, areaStyle: { color: '#1e293b' } },
-        selectedDataBackground: { lineStyle: { color: '#22c55e' }, areaStyle: { color: '#22c55e20' } },
+        selectedDataBackground: { lineStyle: { color: '#14b8a6' }, areaStyle: { color: '#14b8a620' } },
         handleStyle: { color: '#475569' },
         textStyle: { color: '#64748b', fontSize: 10 },
       },

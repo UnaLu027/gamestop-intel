@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_URL
+const API_BASE = import.meta.env.VITE_API_BASE
+  ? import.meta.env.VITE_API_BASE
+  : import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : '/api'
 
@@ -126,45 +128,45 @@ export interface ScenarioHistoryItem {
 
 export const marketApi = {
   getSummary: (ticker: string) =>
-    apiClient.get<MarketSummary>(`/market/${ticker}/summary`).then(r => r.data),
+    apiClient.get<MarketSummary>(`market/${ticker}/summary`).then(r => r.data),
 
   getTimeseries: (ticker: string, days = 30) =>
-    apiClient.get<TimeseriesPoint[]>(`/market/${ticker}/timeseries`, { params: { days } }).then(r => r.data),
+    apiClient.get<TimeseriesPoint[]>(`market/${ticker}/timeseries`, { params: { days } }).then(r => r.data),
 
   getDrivers: (ticker: string) =>
-    apiClient.get<{ drivers: Driver[]; ticker: string; risk_score: number }>(`/market/${ticker}/drivers`).then(r => r.data),
+    apiClient.get<{ drivers: Driver[]; ticker: string; risk_score: number }>(`market/${ticker}/drivers`).then(r => r.data),
 
   getPosts: (ticker: string, limit = 20) =>
-    apiClient.get<PostItem[]>(`/market/${ticker}/posts`, { params: { limit } }).then(r => r.data),
+    apiClient.get<PostItem[]>(`market/${ticker}/posts`, { params: { limit } }).then(r => r.data),
 }
 
 // ── Replay API ─────────────────────────────────────────────────────────────
 
 export const replayApi = {
   getReplay: (ticker: string) =>
-    apiClient.get<{ ticker: string; timeline: ReplayTimeline[]; events: ReplayEvent[] }>(`/replay/${ticker}`).then(r => r.data),
+    apiClient.get<{ ticker: string; timeline: ReplayTimeline[]; events: ReplayEvent[] }>(`replay/${ticker}`).then(r => r.data),
 
   getEvents: (ticker: string) =>
-    apiClient.get<ReplayEvent[]>(`/replay/${ticker}/events`).then(r => r.data),
+    apiClient.get<ReplayEvent[]>(`replay/${ticker}/events`).then(r => r.data),
 
   getPostsByDate: (ticker: string, date: string) =>
-    apiClient.get<PostItem[]>(`/replay/${ticker}/posts`, { params: { date } }).then(r => r.data),
+    apiClient.get<PostItem[]>(`replay/${ticker}/posts`, { params: { date } }).then(r => r.data),
 }
 
 // ── Alerts API ─────────────────────────────────────────────────────────────
 
 export const alertsApi = {
   getAlerts: (userId = 'demo_user') =>
-    apiClient.get<{ alerts: AlertItem[]; watchlist: WatchlistItem[] }>('/alerts', { params: { user_id: userId } }).then(r => r.data),
+    apiClient.get<{ alerts: AlertItem[]; watchlist: WatchlistItem[] }>('alerts', { params: { user_id: userId } }).then(r => r.data),
 
   addWatchlist: (userId: string, ticker: string) =>
-    apiClient.post('/alerts/watchlist', { user_id: userId, ticker }).then(r => r.data),
+    apiClient.post('alerts/watchlist', { user_id: userId, ticker }).then(r => r.data),
 
   removeWatchlist: (watchlistId: string) =>
-    apiClient.delete(`/alerts/watchlist/${watchlistId}`).then(r => r.data),
+    apiClient.delete(`alerts/watchlist/${watchlistId}`).then(r => r.data),
 
   getHistory: (ticker: string) =>
-    apiClient.get<AlertItem[]>('/alerts/history', { params: { ticker } }).then(r => r.data),
+    apiClient.get<AlertItem[]>('alerts/history', { params: { ticker } }).then(r => r.data),
 }
 
 // ── Scenario API ───────────────────────────────────────────────────────────
@@ -183,8 +185,8 @@ export interface ScenarioRequest {
 
 export const scenarioApi = {
   run: (params: ScenarioRequest) =>
-    apiClient.post<ScenarioResult>('/scenario/run', { ticker: 'GME', user_id: 'demo_user', ...params }).then(r => r.data),
+    apiClient.post<ScenarioResult>('scenario/run', { ticker: 'GME', user_id: 'demo_user', ...params }).then(r => r.data),
 
   getHistory: (userId = 'demo_user') =>
-    apiClient.get<ScenarioHistoryItem[]>('/scenario/history', { params: { user_id: userId } }).then(r => r.data),
+    apiClient.get<ScenarioHistoryItem[]>('scenario/history', { params: { user_id: userId } }).then(r => r.data),
 }

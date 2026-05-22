@@ -1,0 +1,12 @@
+{
+    "watchlists": [
+        {
+            "watchlist_id": "260831a1-c1a5-46fc-8701-83b2c4d46116",
+            "user_id": "demo_user",
+            "ticker": "GME",
+            "threshold_config_json": "{\"risk_score_threshold\": 5.0, \"hype_score_threshold\": 0.6, \"mention_growth_threshold\": 2.0}",
+            "created_at": "2026-05-20 07:43:06"
+        }
+    ],
+    "scenario_runs": []
+}

@@ -1,36 +1,23 @@
 import React from 'react'
-import { MessageCircle, ThumbsUp, Reddit } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { ThumbsUp } from 'lucide-react'
 import type { PostItem } from '../api/client'
 import clsx from 'clsx'
+import { AUTHOR_TYPE_LABEL_ZH, POST_TYPE_LABEL_ZH, STANCE_LABEL_ZH, relativeTimeZh } from '../i18n'
 
 interface PostCardProps {
   post: PostItem
 }
 
 const STANCE_STYLES: Record<string, string> = {
-  bullish: 'bg-green-900/30 text-green-400 border-green-700/40',
+  bullish: 'bg-teal-900/30 text-teal-300 border-teal-700/40',
   bearish: 'bg-red-900/30 text-red-400 border-red-700/40',
   neutral: 'bg-slate-700/40 text-slate-400 border-slate-600/40',
-}
-
-const STANCE_LABELS: Record<string, string> = {
-  bullish: 'Bullish',
-  bearish: 'Bearish',
-  neutral: 'Neutral',
-}
-
-const POST_TYPE_LABELS: Record<string, string> = {
-  opinion: 'Opinion',
-  coordination: 'Coordination',
-  meme: 'Meme',
-  news: 'News',
 }
 
 const POST_TYPE_STYLES: Record<string, string> = {
   opinion: 'text-slate-400',
   coordination: 'text-orange-400',
-  meme: 'text-purple-400',
+  meme: 'text-blue-300',
   news: 'text-blue-400',
 }
 
@@ -48,16 +35,10 @@ function platformIcon(platform: string) {
 
 export default function PostCard({ post }: PostCardProps) {
   const stanceStyle = STANCE_STYLES[post.stance] ?? STANCE_STYLES.neutral
-  const timeAgo = (() => {
-    try {
-      return formatDistanceToNow(new Date(post.post_time), { addSuffix: true })
-    } catch {
-      return post.post_time.slice(0, 10)
-    }
-  })()
+  const timeAgo = relativeTimeZh(post.post_time)
 
   return (
-    <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4 hover:bg-slate-800 transition-colors duration-150">
+    <div className="bg-slate-900/60 border border-slate-700/50 rounded-lg p-4 hover:bg-slate-800/80 transition-colors duration-150">
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2 min-w-0">
@@ -72,11 +53,11 @@ export default function PostCard({ post }: PostCardProps) {
                   AUTHOR_TYPE_STYLES[post.author_type] ?? 'text-slate-300'
                 )}
               >
-                {post.author_id ?? 'anonymous'}
+                {post.author_id ?? '匿名使用者'}
               </span>
               {post.author_type === 'influencer' && (
                 <span className="text-yellow-400 text-xs bg-yellow-900/30 border border-yellow-700/40 px-1.5 py-0.5 rounded-full">
-                  Influencer
+                  {AUTHOR_TYPE_LABEL_ZH.influencer}
                 </span>
               )}
             </div>
@@ -85,7 +66,7 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <span className={clsx('text-xs px-2 py-0.5 rounded-full border', stanceStyle)}>
-            {STANCE_LABELS[post.stance] ?? post.stance}
+            {STANCE_LABEL_ZH[post.stance] ?? post.stance}
           </span>
         </div>
       </div>
@@ -108,17 +89,17 @@ export default function PostCard({ post }: PostCardProps) {
               POST_TYPE_STYLES[post.post_type] ?? 'text-slate-400'
             )}
           >
-            {POST_TYPE_LABELS[post.post_type] ?? post.post_type}
+            {POST_TYPE_LABEL_ZH[post.post_type] ?? post.post_type}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-slate-400">Hype:</span>
+          <span className="text-slate-400">熱度：</span>
           <span
             className={clsx(
               'font-semibold',
               post.hype_score > 0.7 ? 'text-red-400' :
-              post.hype_score > 0.4 ? 'text-yellow-400' :
-              'text-green-400'
+              post.hype_score > 0.4 ? 'text-amber-400' :
+              'text-teal-300'
             )}
           >
             {(post.hype_score * 100).toFixed(0)}%

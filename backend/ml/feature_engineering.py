@@ -1,8 +1,23 @@
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-import numpy as np
 from database.models import Post, NLPResult, MarketTick, AggregatedSignal
+
+
+def _mean(values: list[float]) -> float:
+    return sum(values) / len(values) if values else 0.0
+
+
+def _std(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    avg = _mean(values)
+    variance = sum((value - avg) ** 2 for value in values) / len(values)
+    return variance ** 0.5
+
+
+def _clip(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
 
 
 def compute_daily_signals(db: Session, ticker: str, date: datetime) -> dict:
@@ -34,7 +49,7 @@ def compute_daily_signals(db: Session, ticker: str, date: datetime) -> dict:
             key = nlp.stance if nlp.stance in stance_counts else "neutral"
             stance_counts[key] += 1
 
-        avg_hype = float(np.mean([n.hype_score for n in nlp_results])) if nlp_results else 0.0
+        avg_hype = _mean([n.hype_score for n in nlp_results]) if nlp_results else 0.0
         coord_posts = sum(1 for n in nlp_results if n.post_type == "coordination")
         coordination_ratio = coord_posts / max(post_count, 1)
         influencer_posts = sum(1 for p in posts if p.Post.author_type == "influencer")
@@ -83,15 +98,15 @@ def compute_daily_signals(db: Session, ticker: str, date: datetime) -> dict:
     current_vola = tick.volatility if tick else 0.0
 
     if volumes and len(volumes) > 2:
-        vol_mean = np.mean(volumes)
-        vol_std = np.std(volumes)
+        vol_mean = _mean(volumes)
+        vol_std = _std(volumes)
         abnormal_vol = float((current_vol - vol_mean) / max(vol_std, 1))
     else:
         abnormal_vol = 0.0
 
     if vols and len(vols) > 2:
-        vola_mean = np.mean(vols)
-        vola_std = np.std(vols)
+        vola_mean = _mean(vols)
+        vola_std = _std(vols)
         vola_score = float((current_vola - vola_mean) / max(vola_std, 0.001))
     else:
         vola_score = 0.0
@@ -106,8 +121,8 @@ def compute_daily_signals(db: Session, ticker: str, date: datetime) -> dict:
         "influencer_post_count": influencer_posts,
         "mention_growth_rate": float(mention_growth_rate),
         "price_return": price_return,
-        "abnormal_volume_score": float(np.clip(abnormal_vol, -5, 10)),
-        "volatility_score": float(np.clip(vola_score, -5, 10)),
+        "abnormal_volume_score": float(_clip(abnormal_vol, -5, 10)),
+        "volatility_score": float(_clip(vola_score, -5, 10)),
     }
 
 

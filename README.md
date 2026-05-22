@@ -52,6 +52,26 @@ gamestop-platform/
 
 ## Quick Start
 
+### Windows local mode (recommended for this workspace)
+
+This mode does **not** require XAMPP, MySQL, Docker, Apache, or phpMyAdmin. It uses:
+
+- FastAPI backend on `http://localhost:8000`
+- React frontend on `http://localhost:3000`
+- SQLite database file at `C:\Projects\gamestop-platform\gamestop.db`
+
+Run:
+
+```cmd
+cd /d C:\Projects\gamestop-platform
+reinstall.bat
+start.bat
+```
+
+Use this mode if you installed Apache/PHP manually instead of XAMPP.
+
+## Docker Quick Start
+
 ### 1. Prerequisites
 
 - Docker + Docker Compose
@@ -77,6 +97,26 @@ This starts:
 - **Backend API** on port 8000 (FastAPI)
 - **Celery Worker** (background tasks)
 - **Frontend** on port 3000 (React + Vite)
+
+
+### 3.5 Reinstall workspace (clean reset)
+
+If you want a full reset, run the command that matches your environment.
+
+Windows local setup:
+
+```cmd
+cd C:\Projects\gamestop-platform
+reinstall.bat
+```
+
+Docker/Git Bash/WSL setup:
+
+```bash
+bash scripts/reinstall_workspace.sh
+```
+
+This is useful when your local workspace gets out of sync and you need a reproducible clean state.
 
 ### 4. Seed the GameStop 2021 data
 

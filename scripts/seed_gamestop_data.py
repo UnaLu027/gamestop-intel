@@ -13,8 +13,12 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
-# Add backend to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add backend to path so the script works from the project root on Windows,
+# from Docker, and from CI.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+sys.path.insert(0, BACKEND_DIR)
+sys.path.insert(0, PROJECT_ROOT)
 
 from database import engine, SessionLocal, Base
 from database.models import (

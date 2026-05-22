@@ -3,19 +3,27 @@
 @tailwind utilities;
 
 body {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background: #080d14;
+  color: #e5e7eb;
   font-family: 'Inter', system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+::selection {
+  background: rgba(20, 184, 166, 0.28);
+  color: #f8fafc;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #0b1220;
 }
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #334155;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -23,18 +31,116 @@ body {
 }
 
 .card {
-  @apply bg-slate-800 border border-slate-700 rounded-xl p-4;
+  @apply rounded-lg p-4 relative overflow-hidden;
+  background:
+    linear-gradient(180deg, rgba(19, 28, 42, 0.96), rgba(9, 15, 26, 0.98));
+  border: 1px solid rgba(71, 85, 105, 0.38);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.2);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.28), transparent);
+  pointer-events: none;
+}
+
+.card:hover {
+  border-color: rgba(100, 116, 139, 0.55);
+}
+
+.card-compact {
+  @apply rounded-lg px-3 py-2;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(71, 85, 105, 0.36);
+}
+
+.input-premium {
+  @apply rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(71, 85, 105, 0.55);
+}
+
+.input-premium:focus {
+  border-color: rgba(16, 185, 129, 0.68);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+.btn-primary {
+  @apply rounded-lg text-sm font-semibold text-white transition-colors;
+  background: #0f766e;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+}
+
+.btn-primary:hover {
+  background: #0d9488;
+}
+
+.btn-secondary {
+  @apply rounded-lg text-sm transition-colors;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(71, 85, 105, 0.55);
+  color: #94a3b8;
+}
+
+.btn-secondary:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+}
+
+.metric-label {
+  @apply text-slate-500 text-xs font-semibold uppercase tracking-[0.12em];
+}
+
+.panel-title {
+  @apply text-sm font-semibold text-slate-100 tracking-wide;
+}
+
+.section-kicker {
+  @apply text-xs font-semibold uppercase tracking-[0.18em] text-teal-300/80;
+}
+
+.finance-number {
+  @apply font-semibold tracking-tight;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.toolbar-chip {
+  @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(71, 85, 105, 0.46);
+  color: #cbd5e1;
+}
+
+.status-dot {
+  @apply inline-block h-2 w-2 rounded-full;
+  background: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
 }
 
 .badge-normal {
-  @apply bg-green-900/40 text-green-400 border border-green-700/50 text-xs px-2 py-0.5 rounded-full font-medium;
+  @apply text-xs px-2 py-0.5 rounded-full font-medium;
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.36);
 }
 .badge-heating {
-  @apply bg-yellow-900/40 text-yellow-400 border border-yellow-700/50 text-xs px-2 py-0.5 rounded-full font-medium;
+  @apply text-xs px-2 py-0.5 rounded-full font-medium;
+  background: rgba(217, 119, 6, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(217, 119, 6, 0.42);
 }
 .badge-squeeze {
-  @apply bg-orange-900/40 text-orange-400 border border-orange-700/50 text-xs px-2 py-0.5 rounded-full font-medium;
+  @apply text-xs px-2 py-0.5 rounded-full font-medium;
+  background: rgba(194, 65, 12, 0.14);
+  color: #fb923c;
+  border: 1px solid rgba(194, 65, 12, 0.48);
 }
 .badge-reversal {
-  @apply bg-red-900/40 text-red-400 border border-red-700/50 text-xs px-2 py-0.5 rounded-full font-medium;
+  @apply text-xs px-2 py-0.5 rounded-full font-medium;
+  background: rgba(185, 28, 28, 0.14);
+  color: #f87171;
+  border: 1px solid rgba(185, 28, 28, 0.5);
 }

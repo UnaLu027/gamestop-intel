@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactECharts from 'echarts-for-react'
+import { riskLabelZh } from '../i18n'
 
 interface RiskMeterProps {
   score: number
@@ -8,22 +9,15 @@ interface RiskMeterProps {
 }
 
 const RISK_COLORS: Record<string, string> = {
-  Normal: '#22c55e',
-  HeatingUp: '#eab308',
-  SqueezeRisk: '#f97316',
-  ReversalRisk: '#ef4444',
-}
-
-const RISK_LABELS: Record<string, string> = {
-  Normal: 'Normal',
-  HeatingUp: 'Heating Up',
-  SqueezeRisk: 'Squeeze Risk',
-  ReversalRisk: 'Reversal Risk',
+  Normal: '#14b8a6',
+  HeatingUp: '#d97706',
+  SqueezeRisk: '#ea580c',
+  ReversalRisk: '#dc2626',
 }
 
 export default function RiskMeter({ score, label, size = 220 }: RiskMeterProps) {
   const color = RISK_COLORS[label] ?? '#22c55e'
-  const displayLabel = RISK_LABELS[label] ?? label
+  const displayLabel = riskLabelZh(label)
   const normalizedScore = Math.min(Math.max(score, 0), 10)
 
   const option = {
@@ -41,7 +35,7 @@ export default function RiskMeter({ score, label, size = 220 }: RiskMeterProps) 
         itemStyle: {
           color: color,
           shadowColor: color + '80',
-          shadowBlur: 10,
+          shadowBlur: 4,
         },
         progress: {
           show: true,

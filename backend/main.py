@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 import json
+import sys
+from pathlib import Path
 
 from config import settings
-from database import engine, Base
+from database import engine, Base, SessionLocal
 from database.models import (
     Post, MarketTick, NLPResult, AggregatedSignal,
     Alert, ReplayEvent, ScenarioRun, Watchlist
@@ -14,11 +16,39 @@ from database.models import (
 from api import market, replay, alerts, scenario
 
 
+def _allowed_origins() -> list[str]:
+    return [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+
+
+def seed_demo_data_if_empty():
+    if not settings.AUTO_SEED_DEMO_DATA:
+        return
+
+    db = SessionLocal()
+    try:
+        has_data = db.query(MarketTick).filter(MarketTick.ticker == "GME").first() is not None
+    finally:
+        db.close()
+
+    if has_data:
+        return
+
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+    from scripts.seed_gamestop_data import main as seed_main
+
+    print("No demo data found. Seeding GameStop dataset...")
+    seed_main()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create all tables on startup
     Base.metadata.create_all(bind=engine)
     print("Database tables created")
+    seed_demo_data_if_empty()
     yield
     print("Shutting down...")
 
@@ -31,7 +61,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins() or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

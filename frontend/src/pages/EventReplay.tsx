@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { PlayCircle, ChevronLeft, ChevronRight, Calendar, Newspaper, MessageSquare, TrendingUp, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, MessageSquare, Newspaper, PlayCircle, TrendingUp } from 'lucide-react'
 import clsx from 'clsx'
-import { replayApi, ReplayTimeline, ReplayEvent } from '../api/client'
+import { replayApi, ReplayEvent, ReplayTimeline } from '../api/client'
 import TimelineChart from '../components/TimelineChart'
 import PostCard from '../components/PostCard'
+import { EVENT_TYPE_LABEL_ZH, eventDescriptionZh, eventTitleZh } from '../i18n'
 
 const EVENT_TYPE_STYLES: Record<string, string> = {
   market_event: 'bg-blue-900/30 border-blue-700/50 text-blue-400',
-  social_event: 'bg-purple-900/30 border-purple-700/50 text-purple-400',
+  social_event: 'bg-sky-900/30 border-sky-700/50 text-sky-300',
   regulation_event: 'bg-red-900/30 border-red-700/50 text-red-400',
 }
 
@@ -18,12 +19,6 @@ const EVENT_TYPE_ICONS: Record<string, React.ElementType> = {
   regulation_event: AlertTriangle,
 }
 
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  market_event: 'Market',
-  social_event: 'Social',
-  regulation_event: 'Regulation',
-}
-
 function EventCard({ event, isActive }: { event: ReplayEvent; isActive: boolean }) {
   const Icon = EVENT_TYPE_ICONS[event.event_type] ?? Newspaper
   const style = EVENT_TYPE_STYLES[event.event_type] ?? 'bg-slate-700/30 border-slate-600/50 text-slate-400'
@@ -31,9 +26,9 @@ function EventCard({ event, isActive }: { event: ReplayEvent; isActive: boolean 
   return (
     <div
       className={clsx(
-        'border rounded-xl p-4 transition-all duration-200',
+        'border rounded-lg p-4 transition-all duration-200',
         style,
-        isActive ? 'ring-2 ring-white/20 shadow-lg' : 'opacity-70 hover:opacity-100'
+        isActive ? 'ring-1 ring-teal-300/30' : 'opacity-70 hover:opacity-100'
       )}
     >
       <div className="flex items-start gap-3">
@@ -43,15 +38,17 @@ function EventCard({ event, isActive }: { event: ReplayEvent; isActive: boolean 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-medium opacity-80">
-              {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
+              {EVENT_TYPE_LABEL_ZH[event.event_type] ?? event.event_type}
             </span>
-            <span className="text-xs opacity-60">
-              {event.event_time.slice(0, 10)}
-            </span>
+            <span className="text-xs opacity-60">{event.event_time.slice(0, 10)}</span>
           </div>
-          <div className="font-semibold text-sm text-white leading-snug">{event.title}</div>
+          <div className="font-semibold text-sm text-white leading-snug">
+            {eventTitleZh(event.title)}
+          </div>
           {event.description && (
-            <p className="text-xs mt-1.5 opacity-70 leading-relaxed line-clamp-3">{event.description}</p>
+            <p className="text-xs mt-1.5 opacity-70 leading-relaxed line-clamp-3">
+              {eventDescriptionZh(event.title, event.description)}
+            </p>
           )}
         </div>
       </div>
@@ -80,13 +77,10 @@ export default function EventReplay() {
 
   const timeline: ReplayTimeline[] = replayQuery.data?.timeline ?? []
   const events: ReplayEvent[] = replayQuery.data?.events ?? []
-
   const maxIndex = Math.max(0, timeline.length - 1)
-
   const currentPoint = timeline[sliderIndex]
   const currentDate = currentPoint?.date?.slice(0, 10) ?? null
 
-  // Find active events for current date
   const activeEvents = useMemo(() => {
     if (!currentDate) return []
     return events.filter(e => e.event_time.slice(0, 10) <= currentDate)
@@ -102,12 +96,11 @@ export default function EventReplay() {
     riskScore: t.risk_score,
   }))
 
-  // Mark lines for events
   const markLines = events.map(e => ({
     date: e.event_time.slice(0, 10),
-    label: e.title.slice(0, 20) + '...',
+    label: `${eventTitleZh(e.title).slice(0, 12)}...`,
     color: e.event_type === 'regulation_event' ? '#ef4444' :
-           e.event_type === 'social_event' ? '#a855f7' : '#3b82f6',
+           e.event_type === 'social_event' ? '#38bdf8' : '#3b82f6',
   }))
 
   const handleSlider = (v: number) => {
@@ -116,17 +109,9 @@ export default function EventReplay() {
     setSelectedDate(date ?? null)
   }
 
-  const stepForward = () => {
-    const next = Math.min(sliderIndex + 1, maxIndex)
-    handleSlider(next)
-  }
+  const stepForward = () => handleSlider(Math.min(sliderIndex + 1, maxIndex))
+  const stepBack = () => handleSlider(Math.max(sliderIndex - 1, 0))
 
-  const stepBack = () => {
-    const prev = Math.max(sliderIndex - 1, 0)
-    handleSlider(prev)
-  }
-
-  // Auto-play
   React.useEffect(() => {
     if (!playing) return
     const iv = setInterval(() => {
@@ -152,24 +137,25 @@ export default function EventReplay() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Event Replay</h1>
-        <p className="text-slate-400 text-sm mt-0.5">Replay the GameStop Jan–Mar 2021 timeline day by day</p>
+          <div className="section-kicker mb-2">Event Replay</div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">事件回放</h1>
+          <p className="text-slate-500 text-sm mt-0.5">
+          逐日回放 GameStop 2021 年一月至三月的社群聲量、風險變化與關鍵事件。
+        </p>
       </div>
 
       {replayQuery.isError && (
         <div className="card border-yellow-700/50 bg-yellow-900/10 text-yellow-400 text-sm">
-          Could not load replay data. Make sure the backend and seed script have been run.
+          無法載入事件回放資料。請確認後端服務與展示資料已準備完成。
         </div>
       )}
 
-      {/* Timeline chart */}
       <div className="card">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-base font-semibold text-white">GME Price + Social Volume Timeline</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Drag to explore — vertical lines mark key events</p>
+            <h2 className="text-base font-semibold text-white">GME 股價與社群聲量時間軸</h2>
+            <p className="text-xs text-slate-400 mt-0.5">拖曳時間軸探索事件，垂直線代表關鍵節點。</p>
           </div>
           {currentDate && (
             <div className="flex items-center gap-2 text-sm">
@@ -188,7 +174,6 @@ export default function EventReplay() {
           markLines={markLines}
         />
 
-        {/* Playback controls */}
         <div className="mt-4 space-y-3">
           <input
             type="range"
@@ -204,6 +189,7 @@ export default function EventReplay() {
               <button
                 onClick={stepBack}
                 className="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+                aria-label="上一天"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -211,15 +197,16 @@ export default function EventReplay() {
                 onClick={() => setPlaying(p => !p)}
                 className={clsx(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                  playing ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-green-600 hover:bg-green-500 text-white'
+                  playing ? 'bg-red-700 hover:bg-red-600 text-white' : 'bg-teal-700 hover:bg-teal-600 text-white'
                 )}
               >
                 <PlayCircle size={15} />
-                {playing ? 'Pause' : 'Play'}
+                {playing ? '暫停' : '播放'}
               </button>
               <button
                 onClick={stepForward}
                 className="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+                aria-label="下一天"
               >
                 <ChevronRight size={16} />
               </button>
@@ -229,29 +216,28 @@ export default function EventReplay() {
         </div>
       </div>
 
-      {/* Current snapshot */}
       {currentPoint && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="card text-center">
-            <div className="text-xs text-slate-400 mb-1">Price</div>
-            <div className="text-xl font-bold text-green-400">
-              {currentPoint.close_price != null ? `$${currentPoint.close_price.toFixed(2)}` : '—'}
+            <div className="text-xs text-slate-400 mb-1">股價</div>
+            <div className="text-xl font-bold text-teal-300">
+              {currentPoint.close_price != null ? `$${currentPoint.close_price.toFixed(2)}` : '-'}
             </div>
           </div>
           <div className="card text-center">
-            <div className="text-xs text-slate-400 mb-1">Social Posts</div>
-            <div className="text-xl font-bold text-purple-400">
+            <div className="text-xs text-slate-400 mb-1">社群貼文</div>
+            <div className="text-xl font-bold text-sky-300">
               {currentPoint.post_count.toLocaleString()}
             </div>
           </div>
           <div className="card text-center">
-            <div className="text-xs text-slate-400 mb-1">Hype Score</div>
+            <div className="text-xs text-slate-400 mb-1">炒作熱度</div>
             <div className="text-xl font-bold text-orange-400">
               {(currentPoint.avg_hype_score * 100).toFixed(0)}%
             </div>
           </div>
           <div className="card text-center">
-            <div className="text-xs text-slate-400 mb-1">Risk Score</div>
+            <div className="text-xs text-slate-400 mb-1">風險分數</div>
             <div className="text-xl font-bold" style={{ color: riskColor }}>
               {currentPoint.risk_score.toFixed(1)}/10
             </div>
@@ -260,15 +246,14 @@ export default function EventReplay() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Event log */}
         <div className="card">
           <h2 className="text-base font-semibold text-white mb-3">
-            Key Events (up to {currentDate ?? '—'})
+            關鍵事件（截至 {currentDate ?? '尚未選取'}）
           </h2>
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
             {activeEvents.length === 0 ? (
               <div className="text-slate-500 text-sm text-center py-8">
-                Slide the timeline to reveal events
+                拖曳時間軸以顯示事件
               </div>
             ) : (
               [...activeEvents].reverse().map(ev => (
@@ -282,20 +267,19 @@ export default function EventReplay() {
           </div>
         </div>
 
-        {/* Posts on selected day */}
         <div className="card">
           <h2 className="text-base font-semibold text-white mb-3">
-            Posts on {selectedDate ?? '—'}
+            {selectedDate ?? '尚未選取日期'} 的社群貼文
           </h2>
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
             {!selectedDate ? (
               <div className="text-slate-500 text-sm text-center py-8">
-                Select a date to see posts
+                選擇日期後可查看當日貼文
               </div>
             ) : postsQuery.isLoading ? (
-              <div className="text-slate-500 text-sm text-center py-8 animate-pulse">Loading posts...</div>
+              <div className="text-slate-500 text-sm text-center py-8 animate-pulse">貼文載入中...</div>
             ) : (postsQuery.data ?? []).length === 0 ? (
-              <div className="text-slate-500 text-sm text-center py-8">No posts on this date</div>
+              <div className="text-slate-500 text-sm text-center py-8">此日期沒有貼文</div>
             ) : (
               (postsQuery.data ?? []).map(post => (
                 <PostCard key={post.post_id} post={post} />
